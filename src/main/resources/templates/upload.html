@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioDataHub - FASTA 파일 업로드</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            /* 동일한 사이버펑크 테마 변수 */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-glass: rgba(255, 255, 255, 0.02);
+            --bg-glass-hover: rgba(255, 255, 255, 0.05);
+            
+            --text-primary: #ffffff;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --text-muted: #9ca3af;
+            
+            --accent-neon: #00ff88;
+            --accent-blue: #0091ff;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-green: #00ff88;
+            --text-danger: #ff4757;
+            --accent-orange: #f97316;
+            --accent-red: #ef4444;
+            --accent-yellow: #eab308;
+            
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-medium: rgba(255, 255, 255, 0.12);
+            --border-strong: rgba(255, 255, 255, 0.18);
+            
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.5);
+            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-strong: 0 8px 32px rgba(0, 0, 0, 0.6);
+            --shadow-glow: 0 0 20px rgba(0, 255, 136, 0.3);
+            --shadow-glow-blue: 0 0 20px rgba(0, 145, 255, 0.2);
+            --shadow-glow-orange: 0 0 20px rgba(249, 115, 22, 0.2);
+            
+            --gradient-primary: linear-gradient(135deg, var(--accent-neon), var(--accent-blue));
+            --gradient-secondary: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            --gradient-tertiary: linear-gradient(135deg, var(--accent-orange), var(--accent-red));
+            --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            overflow-x: hidden;
+            font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+        }
+
+        /* 동일한 애니메이션 배경 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(0, 255, 136, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 145, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(139, 92, 246, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* 제목 스타일링 */
+        .display-4 {
+            font-weight: 800;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            background: var(--gradient-primary);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+
+        .lead {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .text-muted {
+            color: var(--text-secondary) !important;
+        }
+
+        /* 글래스모피즘 카드 */
+        .card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            background: var(--bg-glass-hover);
+            border-color: var(--border-medium);
+            box-shadow: var(--shadow-strong);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-title {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-title i {
+            color: var(--accent-neon);
+            font-size: 1.5rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* 업로드 영역 스타일링 */
+        .upload-area {
+            border: 2px dashed var(--border-medium);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-glass);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--accent-neon);
+            background: var(--bg-glass-hover);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-2px);
+        }
+
+        .upload-area:hover::before, .upload-area.dragover::before {
+            opacity: 0.5;
+        }
+        
+        .upload-area.active {
+            border-color: var(--accent-blue);
+            background: rgba(0, 145, 255, 0.05);
+            box-shadow: var(--shadow-glow-blue);
+        }
+
+        .upload-area h5 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin: 1rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-area p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-area i.fs-1 {
+            font-size: 4rem !important;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-area i.text-warning {
+            color: var(--accent-orange) !important;
+            filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.3));
+        }
+
+        .upload-area i.text-primary {
+            color: var(--accent-blue) !important;
+            filter: drop-shadow(0 0 10px rgba(0, 145, 255, 0.3));
+        }
+        
+        /* 파일 정보 스타일링 */
+        .file-info {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .file-info h6 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-info small {
+            color: var(--text-secondary);
+        }
+        
+        /* 버튼 스타일링 */
+        .btn {
+            font-weight: 600;
+            border-radius: 50px;
+            padding: 0.75rem 2rem;
+            border: 2px solid;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.85rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-warning {
+            background: transparent;
+            color: var(--accent-orange);
+            border-color: var(--accent-orange);
+        }
+
+        .btn-warning:hover {
+            background: var(--accent-orange);
+            color: var(--bg-primary) !important;
+            box-shadow: var(--shadow-glow-orange);
+            transform: translateY(-2px);
+            border-color: var(--accent-orange);
+        }
+
+        .btn-primary {
+            background: transparent;
+            color: var(--accent-neon);
+            border-color: var(--accent-neon);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-neon);
+            color: var(--bg-primary) !important;
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-2px);
+            border-color: var(--accent-neon);
+        }
+
+        .btn-success {
+            background: transparent;
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .btn-success:hover {
+            background: var(--accent-blue);
+            color: var(--bg-primary) !important;
+            box-shadow: var(--shadow-glow-blue);
+            transform: translateY(-2px);
+            border-color: var(--accent-blue);
+        }
+
+        .btn-outline-danger {
+            background: transparent;
+            color: var(--accent-red);
+            border-color: var(--accent-red);
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--accent-red);
+            color: var(--bg-primary) !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+            transform: translateY(-2px);
+            border-color: var(--accent-red);
+        }
+
+        .btn-outline-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border-color: var(--border-strong);
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--bg-glass-hover);
+            color: var(--text-primary) !important;
+            border-color: var(--accent-neon);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-subtle);
+        }
+
+
+        .badge {
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+        }
+
+        .badge.bg-success {
+            background: var(--accent-neon) !important;
+            color: var(--bg-primary);
+        }
+
+        .badge.bg-warning {
+            background: var(--accent-orange) !important;
+            color: var(--bg-primary);
+        }
+
+        .badge.bg-danger {
+            background: var(--accent-red) !important;
+            color: var(--bg-primary);
+        }
+
+        .badge.bg-secondary {
+            background: var(--bg-tertiary) !important;
+            color: var(--text-secondary);
+        }
+        
+        /* 파일 검증 */
+        .file-validation {
+            margin-top: 1.5rem;
+        }
+
+        .alert {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            color: var(--text-primary);
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            border-left-color: var(--accent-neon);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .alert-danger {
+            border-left-color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        /* 프로그레스 */
+        .progress-container {
+            margin-top: 1.5rem;
+        }
+
+        .chunk-progress {
+            height: 6px;
+            margin-bottom: 0.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+
+        /* 모바일 반응형 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .upload-area {
+                padding: 2rem 1rem;
+            }
+            
+            .display-4 {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* 커스텀 스크롤바 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-neon);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-blue);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- 헤더 -->
+                <div class="text-center mb-5">
+                    <h1 class="display-4"><i class="bi bi-file-earmark-text"></i> BioDataHub</h1>
+                    <p class="lead text-muted">기준 FASTA와 비교 FASTA들을 업로드하여 서열 차이 분석을 시작하세요</p>
+                </div>
+
+                <!-- 기준 FASTA 업로드 영역 -->
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">
+                            <i class="bi bi-star"></i> 기준 FASTA 파일 업로드
+                        </h5>
+                        
+                        <!-- 기준 파일 업로드 드래그 영역 -->
+                        <div id="referenceUploadArea" class="upload-area">
+                            <i class="bi bi-star fs-1 text-warning mb-3"></i>
+                            <h5>기준이 될 FASTA 파일을 업로드하세요</h5>
+                            <p class="text-muted">
+                                지원 형식: .fasta, .fa, .fas, .fna, .ffn, .faa, .frn<br>
+                                최대 파일 크기: 50MB
+                            </p>
+                            <input type="file" id="referenceInput" class="d-none" accept=".fasta,.fa,.fas,.fna,.ffn,.faa,.frn">
+                            <button type="button" class="btn btn-warning" id="referenceSelectBtn">
+                                <i class="bi bi-folder2-open"></i> 기준 파일 선택
+                            </button>
+                        </div>
+
+                        <!-- 기준 파일 정보 -->
+                        <div id="referenceFileInfo" class="file-info d-none">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6><i class="bi bi-star text-warning"></i> <span id="referenceFileName"></span></h6>
+                                    <small class="text-muted">
+                                        크기: <span id="referenceFileSize"></span> | 
+                                        타입: <span id="referenceFileType"></span>
+                                    </small>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <button id="referenceUploadBtn" class="btn btn-warning">
+                                        <i class="bi bi-upload"></i> 업로드
+                                    </button>
+                                    <button id="referenceCancelBtn" class="btn btn-outline-danger d-none">
+                                        <i class="bi bi-x-circle"></i> 취소
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 기준 파일 검증 결과 -->
+                        <div id="referenceFileValidation" class="file-validation d-none">
+                            <div id="referenceValidationMessage" class="alert" role="alert"></div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- 비교 FASTA 업로드 영역 -->
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">
+                            <i class="bi bi-files"></i> 비교 FASTA 파일들 업로드
+                        </h5>
+                        
+                        <!-- 비교 파일들 업로드 드래그 영역 -->
+                        <div id="comparisonUploadArea" class="upload-area">
+                            <i class="bi bi-files fs-1 text-primary mb-3"></i>
+                            <h5>비교할 FASTA 파일들을 선택하세요 (다중 선택 가능)</h5>
+                            <p class="text-muted">
+                                지원 형식: .fasta, .fa, .fas, .fna, .ffn, .faa, .frn<br>
+                                최대 파일 크기: 50MB (파일당)<br>
+                                최대 파일 개수: 10개
+                            </p>
+                            <input type="file" id="comparisonInput" class="d-none" accept=".fasta,.fa,.fas,.fna,.ffn,.faa,.frn" multiple>
+                            <button type="button" class="btn btn-primary" id="comparisonSelectBtn">
+                                <i class="bi bi-folder2-open"></i> 비교 파일들 선택
+                            </button>
+                        </div>
+
+                        <!-- 비교 파일들 목록 -->
+                        <div id="comparisonFilesList" class="d-none mt-3">
+                            <h6 style="color: #ffffff; font-weight: 600;"><i class="bi bi-list-ul" style="color: #00d4ff;"></i> 선택된 비교 파일들</h6>
+                            <div id="comparisonFilesContainer"></div>
+                            <div class="text-end mt-3">
+                                <button id="comparisonUploadBtn" class="btn btn-success" disabled>
+                                    <i class="bi bi-upload"></i> 모든 파일 업로드
+                                </button>
+                                <button id="comparisonCancelBtn" class="btn btn-outline-danger d-none">
+                                    <i class="bi bi-x-circle"></i> 취소
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- 분석 시작 영역 -->
+                <div id="analysisSection" class="card shadow mt-4 d-none">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-success">
+                            <i class="bi bi-check-circle"></i> 모든 파일 업로드 완료!
+                        </h5>
+                        <p class="card-text">기준 파일과 비교 파일들이 성공적으로 업로드되었습니다. 서열 차이 분석을 시작하세요.</p>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button id="startComparisonBtn" class="btn btn-primary btn-lg">
+                                <i class="bi bi-graph-up"></i> 서열 비교 분석 시작
+                            </button>
+                            <button id="resetUploadBtn" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-arrow-clockwise"></i> 다시 업로드
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="/js/comparison-upload.js"></script>
+</body>
+</html>

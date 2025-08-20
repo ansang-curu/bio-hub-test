@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.biodatahub.model.SequenceDataTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2025-08-19T10:35:29" hostname="ANSANG-PC" time="0.022">
+  <properties/>
+  <testcase name="Null sequence handling" classname="com.biodatahub.model.SequenceDataTest" time="0.013"/>
+  <testcase name="Builder pattern validation" classname="com.biodatahub.model.SequenceDataTest" time="0.0"/>
+  <testcase name="Valid sequence check" classname="com.biodatahub.model.SequenceDataTest" time="0.001"/>
+  <testcase name="GC content calculation" classname="com.biodatahub.model.SequenceDataTest" time="0.001"/>
+  <testcase name="Base counts with N characters" classname="com.biodatahub.model.SequenceDataTest" time="0.0"/>
+  <testcase name="Base counts calculation" classname="com.biodatahub.model.SequenceDataTest" time="0.0"/>
+  <testcase name="Empty sequence handling" classname="com.biodatahub.model.SequenceDataTest" time="0.001"/>
+  <testcase name="Invalid characters in sequence" classname="com.biodatahub.model.SequenceDataTest" time="0.0"/>
+  <testcase name="GC content with empty sequence" classname="com.biodatahub.model.SequenceDataTest" time="0.0"/>
+  <testcase name="Composition string formatting" classname="com.biodatahub.model.SequenceDataTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

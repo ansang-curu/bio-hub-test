@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.biodatahub.util.FastaParserTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2025-08-19T10:35:29" hostname="ANSANG-PC" time="0.026">
+  <properties/>
+  <testcase name="Empty FASTA file handling" classname="com.biodatahub.util.FastaParserTest" time="0.012"/>
+  <testcase name="FASTA sequence validation" classname="com.biodatahub.util.FastaParserTest" time="0.002"/>
+  <testcase name="Valid FASTA file streaming parsing" classname="com.biodatahub.util.FastaParserTest" time="0.007"/>
+  <testcase name="Sequence statistics calculation" classname="com.biodatahub.util.FastaParserTest" time="0.003"/>
+  <system-out><![CDATA[2025-08-19 19:35:29 - Parsing completed: 0 sequences processed from file empty.fasta
+2025-08-19 19:35:29 - Parsing completed: 2 sequences processed from file test.fasta
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

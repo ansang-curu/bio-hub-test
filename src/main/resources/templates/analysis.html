@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioDataHub - FASTA 분석 결과</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        .stat-card {
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+        
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1050;
+        }
+        
+        .analysis-section {
+            margin-bottom: 2rem;
+        }
+        
+        .composition-bar {
+            height: 30px;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            background-color: #f8f9fa;
+            margin-bottom: 10px;
+        }
+        
+        .base-segment {
+            height: 100%;
+            float: left;
+            position: relative;
+        }
+        
+        .base-A { background-color: #ff6b6b; }
+        .base-T { background-color: #4ecdc4; }
+        .base-C { background-color: #45b7d1; }
+        .base-G { background-color: #96ceb4; }
+        .base-N { background-color: #feca57; }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">분석 중...</span>
+        </div>
+        <div class="mt-2 text-center">
+            <strong>FASTA 파일 분석 중...</strong>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/upload">업로드</a></li>
+                        <li class="breadcrumb-item active">분석 결과</li>
+                    </ol>
+                </nav>
+                <h1 class="display-5">
+                    <i class="bi bi-graph-up"></i> FASTA 파일 분석 결과
+                </h1>
+                <p class="text-muted" id="fileInfo">파일 ID: <span id="currentFileId"></span></p>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Analysis Results -->
+        <div id="resultsContainer" style="display: none;">
+            
+            <!-- Basic Statistics -->
+            <div class="analysis-section">
+                <h3><i class="bi bi-bar-chart"></i> 기본 통계</h3>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="card stat-card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-list-ol fs-1 text-primary mb-2"></i>
+                                <h5 class="card-title">총 서열 수</h5>
+                                <h2 class="text-primary" id="totalSequences">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-check-circle fs-1 text-success mb-2"></i>
+                                <h5 class="card-title">유효 서열</h5>
+                                <h2 class="text-success" id="validSequences">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-rulers fs-1 text-info mb-2"></i>
+                                <h5 class="card-title">총 길이</h5>
+                                <h2 class="text-info" id="totalLength">0</h2>
+                                <small class="text-muted">bp</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-speedometer2 fs-1 text-warning mb-2"></i>
+                                <h5 class="card-title">평균 길이</h5>
+                                <h2 class="text-warning" id="averageLength">0</h2>
+                                <small class="text-muted">bp</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quality Statistics -->
+            <div class="analysis-section">
+                <h3><i class="bi bi-award"></i> 품질 지표</h3>
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <div class="card stat-card h-100">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">최소 길이</h6>
+                                <h4 class="text-secondary" id="minLength">0</h4>
+                                <small class="text-muted">bp</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card stat-card h-100">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">최대 길이</h6>
+                                <h4 class="text-secondary" id="maxLength">0</h4>
+                                <small class="text-muted">bp</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card stat-card h-100">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">평균 GC%</h6>
+                                <h4 class="text-primary" id="averageGcContent">0</h4>
+                                <small class="text-muted">%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Base Composition -->
+            <div class="analysis-section">
+                <h3><i class="bi bi-pie-chart"></i> 염기 조성</h3>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="composition-bar" id="compositionBar"></div>
+                        <div class="row text-center">
+                            <div class="col">
+                                <strong class="text-danger">A</strong><br>
+                                <span id="aCount">0</span><br>
+                                <small id="aPercent">0%</small>
+                            </div>
+                            <div class="col">
+                                <strong class="text-info">T</strong><br>
+                                <span id="tCount">0</span><br>
+                                <small id="tPercent">0%</small>
+                            </div>
+                            <div class="col">
+                                <strong class="text-primary">C</strong><br>
+                                <span id="cCount">0</span><br>
+                                <small id="cPercent">0%</small>
+                            </div>
+                            <div class="col">
+                                <strong class="text-success">G</strong><br>
+                                <span id="gCount">0</span><br>
+                                <small id="gPercent">0%</small>
+                            </div>
+                            <div class="col">
+                                <strong class="text-warning">N</strong><br>
+                                <span id="nCount">0</span><br>
+                                <small id="nPercent">0%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="analysis-section">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="bi bi-bar-chart-line"></i> 길이 분포</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="lengthChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="bi bi-pie-chart-fill"></i> GC 함량 분포</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="gcChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="analysis-section">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5>다음 단계</h5>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button class="btn btn-primary btn-lg" onclick="window.print()">
+                                <i class="bi bi-printer"></i> 결과 출력
+                            </button>
+                            <button class="btn btn-success btn-lg" onclick="exportResults()">
+                                <i class="bi bi-download"></i> 데이터 내보내기
+                            </button>
+                            <a href="/upload" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-upload"></i> 새 파일 분석
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        let currentFileId = null;
+        let analysisResults = null;
+
+        // Get fileId from URL parameters
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            currentFileId = urlParams.get('fileId');
+            
+            if (!currentFileId) {
+                showError('파일 ID가 제공되지 않았습니다.');
+                return;
+            }
+            
+            document.getElementById('currentFileId').textContent = currentFileId;
+            
+            // Start analysis and get results
+            startAnalysis();
+        });
+
+        async function startAnalysis() {
+            showLoading(true);
+            
+            try {
+                // 즉시 분석하고 결과 받기
+                const response = await fetch(`/api/analysis/analyze/${currentFileId}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.statistics) {
+                    analysisResults = data.statistics;
+                    displayResults(data.statistics);
+                    showLoading(false);
+                    document.getElementById('resultsContainer').style.display = 'block';
+                } else {
+                    throw new Error(data.message || '분석에 실패했습니다.');
+                }
+                
+            } catch (error) {
+                console.error('Analysis error:', error);
+                showError('분석 중 오류가 발생했습니다: ' + error.message);
+                showLoading(false);
+            }
+        }
+
+        function displayResults(results) {
+            // Basic statistics
+            document.getElementById('totalSequences').textContent = results.totalSequences || 0;
+            document.getElementById('validSequences').textContent = results.validSequences || 0;
+            document.getElementById('totalLength').textContent = formatNumber(results.totalLength || 0);
+            document.getElementById('averageLength').textContent = Math.round(results.averageLength || 0);
+            document.getElementById('minLength').textContent = results.minLength || 0;
+            document.getElementById('maxLength').textContent = results.maxLength || 0;
+            document.getElementById('averageGcContent').textContent = (results.averageGcContent || 0).toFixed(1);
+
+            // Base composition
+            if (results.baseComposition) {
+                const composition = results.baseComposition;
+                const total = composition.A + composition.T + composition.C + composition.G + composition.N;
+                
+                document.getElementById('aCount').textContent = formatNumber(composition.A);
+                document.getElementById('tCount').textContent = formatNumber(composition.T);
+                document.getElementById('cCount').textContent = formatNumber(composition.C);
+                document.getElementById('gCount').textContent = formatNumber(composition.G);
+                document.getElementById('nCount').textContent = formatNumber(composition.N);
+                
+                if (total > 0) {
+                    document.getElementById('aPercent').textContent = ((composition.A / total) * 100).toFixed(1) + '%';
+                    document.getElementById('tPercent').textContent = ((composition.T / total) * 100).toFixed(1) + '%';
+                    document.getElementById('cPercent').textContent = ((composition.C / total) * 100).toFixed(1) + '%';
+                    document.getElementById('gPercent').textContent = ((composition.G / total) * 100).toFixed(1) + '%';
+                    document.getElementById('nPercent').textContent = ((composition.N / total) * 100).toFixed(1) + '%';
+                    
+                    // Update composition bar
+                    updateCompositionBar(composition, total);
+                }
+            }
+
+            // Create charts
+            createLengthChart(results.lengthDistribution || {});
+            createGcChart(results.gcDistribution || {});
+        }
+
+        function updateCompositionBar(composition, total) {
+            const bar = document.getElementById('compositionBar');
+            bar.innerHTML = '';
+            
+            const aPercent = (composition.A / total) * 100;
+            const tPercent = (composition.T / total) * 100;
+            const cPercent = (composition.C / total) * 100;
+            const gPercent = (composition.G / total) * 100;
+            const nPercent = (composition.N / total) * 100;
+            
+            if (aPercent > 0) {
+                const aDiv = document.createElement('div');
+                aDiv.className = 'base-segment base-A';
+                aDiv.style.width = aPercent + '%';
+                bar.appendChild(aDiv);
+            }
+            
+            if (tPercent > 0) {
+                const tDiv = document.createElement('div');
+                tDiv.className = 'base-segment base-T';
+                tDiv.style.width = tPercent + '%';
+                bar.appendChild(tDiv);
+            }
+            
+            if (cPercent > 0) {
+                const cDiv = document.createElement('div');
+                cDiv.className = 'base-segment base-C';
+                cDiv.style.width = cPercent + '%';
+                bar.appendChild(cDiv);
+            }
+            
+            if (gPercent > 0) {
+                const gDiv = document.createElement('div');
+                gDiv.className = 'base-segment base-G';
+                gDiv.style.width = gPercent + '%';
+                bar.appendChild(gDiv);
+            }
+            
+            if (nPercent > 0) {
+                const nDiv = document.createElement('div');
+                nDiv.className = 'base-segment base-N';
+                nDiv.style.width = nPercent + '%';
+                bar.appendChild(nDiv);
+            }
+        }
+
+        function createLengthChart(lengthDistribution) {
+            const ctx = document.getElementById('lengthChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(lengthDistribution),
+                    datasets: [{
+                        label: '서열 수',
+                        data: Object.values(lengthDistribution),
+                        backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '서열 수'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '길이 범위 (bp)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createGcChart(gcDistribution) {
+            const ctx = document.getElementById('gcChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(gcDistribution),
+                    datasets: [{
+                        data: Object.values(gcDistribution),
+                        backgroundColor: [
+                            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57',
+                            '#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3', '#FF9F43'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function showLoading(show) {
+            const spinner = document.getElementById('loadingSpinner');
+            spinner.style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat().format(num);
+        }
+
+        function exportResults() {
+            if (!analysisResults) return;
+            
+            const dataStr = JSON.stringify(analysisResults, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `analysis_results_${currentFileId}.json`;
+            link.click();
+        }
+    </script>
+</body>
+</html>

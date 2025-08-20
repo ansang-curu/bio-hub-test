@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.biodatahub.repository.SequenceRepository">
+
+    <resultMap id="SequenceDataResultMap" type="com.biodatahub.model.SequenceData">
+        <id property="id" column="id"/>
+        <result property="fileId" column="file_id"/>
+        <result property="sequenceId" column="sequence_id"/>
+        <result property="header" column="header"/>
+        <result property="sequence" column="sequence"/>
+        <result property="sequenceLength" column="sequence_length"/>
+        <result property="gcContent" column="gc_content"/>
+        <result property="aCount" column="a_count"/>
+        <result property="tCount" column="t_count"/>
+        <result property="cCount" column="c_count"/>
+        <result property="gCount" column="g_count"/>
+        <result property="nCount" column="n_count"/>
+        <result property="isValid" column="is_valid"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insertSequence" parameterType="com.biodatahub.model.SequenceData" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sequence_data (
+            file_id, sequence_id, header, sequence, sequence_length,
+            gc_content, a_count, t_count, c_count, g_count, n_count, is_valid
+        ) VALUES (
+            #{fileId}, #{sequenceId}, #{header}, #{sequence}, #{sequenceLength},
+            #{gcContent}, #{aCount}, #{tCount}, #{cCount}, #{gCount}, #{nCount}, #{isValid}
+        )
+    </insert>
+
+    <insert id="insertSequenceBatch" parameterType="list">
+        INSERT INTO sequence_data (
+            file_id, sequence_id, header, sequence, sequence_length,
+            gc_content, a_count, t_count, c_count, g_count, n_count, is_valid
+        ) VALUES
+        <foreach collection="list" item="seq" separator=",">
+            (#{seq.fileId}, #{seq.sequenceId}, #{seq.header}, #{seq.sequence}, #{seq.sequenceLength},
+             #{seq.gcContent}, #{seq.aCount}, #{seq.tCount}, #{seq.cCount}, #{seq.gCount}, #{seq.nCount}, #{seq.isValid})
+        </foreach>
+    </insert>
+
+    <select id="findById" parameterType="long" resultMap="SequenceDataResultMap">
+        SELECT * FROM sequence_data WHERE id = #{id}
+    </select>
+
+    <select id="findByFileId" parameterType="string" resultMap="SequenceDataResultMap">
+        SELECT * FROM sequence_data 
+        WHERE file_id = #{fileId} 
+        ORDER BY id
+    </select>
+
+    <select id="findByFileIdWithPaging" resultMap="SequenceDataResultMap">
+        SELECT * FROM sequence_data 
+        WHERE file_id = #{fileId} 
+        ORDER BY id 
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countByFileId" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM sequence_data WHERE file_id = #{fileId}
+    </select>
+
+    <select id="countValidSequencesByFileId" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM sequence_data WHERE file_id = #{fileId} AND is_valid = true
+    </select>
+
+    <select id="findByGcContentRange" resultMap="SequenceDataResultMap">
+        SELECT * FROM sequence_data 
+        WHERE file_id = #{fileId} 
+        AND gc_content BETWEEN #{minGc} AND #{maxGc}
+        ORDER BY gc_content
+    </select>
+
+    <select id="findByLengthRange" resultMap="SequenceDataResultMap">
+        SELECT * FROM sequence_data 
+        WHERE file_id = #{fileId} 
+        AND sequence_length BETWEEN #{minLength} AND #{maxLength}
+        ORDER BY sequence_length
+    </select>
+
+    <select id="getAverageGcContent" parameterType="string" resultType="double">
+        SELECT AVG(gc_content) FROM sequence_data 
+        WHERE file_id = #{fileId} AND is_valid = true
+    </select>
+
+    <select id="getAverageSequenceLength" parameterType="string" resultType="double">
+        SELECT AVG(sequence_length) FROM sequence_data 
+        WHERE file_id = #{fileId} AND is_valid = true
+    </select>
+
+    <select id="getMinSequenceLength" parameterType="string" resultType="int">
+        SELECT MIN(sequence_length) FROM sequence_data 
+        WHERE file_id = #{fileId} AND is_valid = true
+    </select>
+
+    <select id="getMaxSequenceLength" parameterType="string" resultType="int">
+        SELECT MAX(sequence_length) FROM sequence_data 
+        WHERE file_id = #{fileId} AND is_valid = true
+    </select>
+
+    <select id="getTotalSequenceLength" parameterType="string" resultType="long">
+        SELECT SUM(sequence_length) FROM sequence_data 
+        WHERE file_id = #{fileId} AND is_valid = true
+    </select>
+
+
+    <update id="updateSequence" parameterType="com.biodatahub.model.SequenceData">
+        UPDATE sequence_data SET
+            sequence_id = #{sequenceId},
+            header = #{header},
+            sequence = #{sequence},
+            sequence_length = #{sequenceLength},
+            gc_content = #{gcContent},
+            a_count = #{aCount},
+            t_count = #{tCount},
+            c_count = #{cCount},
+            g_count = #{gCount},
+            n_count = #{nCount},
+            is_valid = #{isValid}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteByFileId" parameterType="string">
+        DELETE FROM sequence_data WHERE file_id = #{fileId}
+    </delete>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM sequence_data WHERE id = #{id}
+    </delete>
+
+</mapper>

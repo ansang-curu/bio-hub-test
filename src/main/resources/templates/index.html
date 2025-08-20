@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioDataHub - 바이오인포매틱스 데이터 처리</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            /* 동일한 사이버펑크 테마 변수 */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-glass: rgba(255, 255, 255, 0.02);
+            --bg-glass-hover: rgba(255, 255, 255, 0.05);
+            
+            --text-primary: #ffffff;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --text-muted: #6b7280;
+            
+            --accent-neon: #00ff88;
+            --accent-blue: #0091ff;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-orange: #f97316;
+            --accent-red: #ef4444;
+            --accent-yellow: #eab308;
+            
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-medium: rgba(255, 255, 255, 0.12);
+            --border-strong: rgba(255, 255, 255, 0.18);
+            
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.5);
+            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-strong: 0 8px 32px rgba(0, 0, 0, 0.6);
+            --shadow-glow: 0 0 20px rgba(0, 255, 136, 0.3);
+            --shadow-glow-blue: 0 0 20px rgba(0, 145, 255, 0.2);
+            --shadow-glow-purple: 0 0 20px rgba(139, 92, 246, 0.2);
+            
+            --gradient-primary: linear-gradient(135deg, var(--accent-neon), var(--accent-blue));
+            --gradient-secondary: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            --gradient-tertiary: linear-gradient(135deg, var(--accent-orange), var(--accent-red));
+            --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            overflow-x: hidden;
+            font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+        }
+
+        /* 애니메이션 배경 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(0, 255, 136, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 145, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(139, 92, 246, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* 히어로 섹션 */
+        .hero-section {
+            background: transparent;
+            color: var(--text-primary);
+            padding: 8rem 0 6rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(0, 145, 255, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-section .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .display-3 {
+            font-weight: 800;
+            font-size: clamp(3rem, 8vw, 5rem);
+            background: var(--gradient-primary);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 40px rgba(0, 255, 136, 0.3);
+        }
+
+        .lead {
+            color: var(--text-secondary);
+            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+            font-weight: 400;
+            margin-bottom: 3rem;
+        }
+
+        /* 버튼 스타일링 */
+        .btn {
+            font-weight: 600;
+            border-radius: 50px;
+            padding: 1rem 3rem;
+            border: 2px solid;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-light {
+            background: transparent;
+            color: var(--accent-neon);
+            border-color: var(--accent-neon);
+        }
+
+        .btn-light:hover {
+            background: var(--accent-neon);
+            color: var(--bg-primary) !important;
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-3px) scale(1.05);
+            border-color: var(--accent-neon);
+        }
+
+        .btn-primary {
+            background: transparent;
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-blue);
+            color: var(--bg-primary) !important;
+            box-shadow: var(--shadow-glow-blue);
+            transform: translateY(-3px) scale(1.05);
+            border-color: var(--accent-blue);
+        }
+
+        /* 제목 스타일링 */
+        .display-5 {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        h2, h4 {
+            color: var(--text-primary);
+        }
+
+        /* 카드 스타일링 */
+        .feature-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            background: var(--bg-glass-hover);
+            border-color: var(--border-medium);
+            box-shadow: var(--shadow-strong);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-body {
+            padding: 2.5rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-title {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .card-text {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* 아이콘 스타일링 */
+        .feature-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
+        }
+
+        .feature-icon.text-primary {
+            color: var(--accent-blue) !important;
+            filter: drop-shadow(0 0 20px rgba(0, 145, 255, 0.3));
+        }
+
+        .feature-icon.text-success {
+            color: var(--accent-neon) !important;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.3));
+        }
+
+        .feature-icon.text-warning {
+            color: var(--accent-orange) !important;
+            filter: drop-shadow(0 0 20px rgba(249, 115, 22, 0.3));
+        }
+
+        .feature-icon.text-info {
+            color: var(--accent-blue) !important;
+            filter: drop-shadow(0 0 20px rgba(0, 145, 255, 0.3));
+        }
+
+        .feature-icon.text-danger {
+            color: var(--accent-red) !important;
+            filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.3));
+        }
+
+        .feature-icon.text-purple {
+            color: var(--accent-purple) !important;
+            filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.3));
+        }
+
+        /* 배경 섹션 */
+        .bg-light {
+            background: var(--bg-secondary) !important;
+            color: var(--text-primary);
+        }
+
+        /* 단계별 원 */
+        .rounded-circle {
+            background: var(--gradient-primary) !important;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .bg-success {
+            background: var(--gradient-secondary) !important;
+            box-shadow: var(--shadow-glow-purple);
+        }
+
+        .bg-info {
+            background: var(--gradient-tertiary) !important;
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+        }
+
+        /* 푸터 */
+        .bg-dark {
+            background: var(--bg-tertiary) !important;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        footer h5 {
+            background: var(--gradient-primary);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        footer .text-light {
+            color: var(--text-primary) !important;
+        }
+
+        footer .text-muted {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Text color overrides */
+        .text-muted {
+            color: var(--text-secondary) !important;
+        }
+
+        /* 컨테이너 스타일 */
+        .container {
+            max-width: 1200px;
+        }
+
+        /* 모바일 반응형 */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 4rem 0 3rem;
+            }
+            
+            .feature-card {
+                margin-bottom: 2rem;
+            }
+            
+            .card-body {
+                padding: 2rem 1.5rem;
+            }
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feature-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* 커스텀 스크롤바 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-neon);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-blue);
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-3 fw-bold mb-4">
+                <i class="bi bi-dna"></i> BioDataHub
+            </h1>
+            <p class="lead fs-4 mb-5">
+                FASTA 서열 비교 분석을 위한 고성능 바이오인포매틱스 플랫폼
+            </p>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="/upload" class="btn btn-light btn-lg px-5">
+                    <i class="bi bi-upload"></i> 서열 비교 분석 시작
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- How It Works Section -->
+    <div class="bg-light py-5">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col">
+                    <h2 class="display-5 fw-bold">사용 방법</h2>
+                    <p class="lead text-muted">간단한 3단계로 FASTA 서열 비교를 분석하세요</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4 text-center">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style="width: 80px; height: 80px;">
+                        <span class="fs-2 fw-bold">1</span>
+                    </div>
+                    <h4>파일 업로드</h4>
+                    <p>기준 FASTA와 비교 FASTA들을 업로드합니다.</p>
+                </div>
+                
+                <div class="col-md-4 text-center">
+                    <div class="bg-success text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style="width: 80px; height: 80px;">
+                        <span class="fs-2 fw-bold">2</span>
+                    </div>
+                    <h4>서열 비교</h4>
+                    <p>시스템이 자동으로 서열들을 비교하고 차이를 분석합니다.</p>
+                </div>
+                
+                <div class="col-md-4 text-center">
+                    <div class="bg-info text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style="width: 80px; height: 80px;">
+                        <span class="fs-2 fw-bold">3</span>
+                    </div>
+                    <h4>결과 확인</h4>
+                    <p>차트와 표로 정리된 비교 분석 결과를 확인합니다.</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="/upload" class="btn btn-primary btn-lg">
+                    <i class="bi bi-play-circle"></i> 지금 시작하기
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="bi bi-dna"></i> BioDataHub</h5>
+                    <p class="text-muted">바이오인포매틱스 데이터 처리를 위한 고성능 플랫폼</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="text-muted">
+                        <i class="bi bi-code-slash"></i> Spring Boot • MyBatis • Chart.js
+                    </p>
+                    <p class="text-muted">© 2025 BioDataHub.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
