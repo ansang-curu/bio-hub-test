@@ -49,7 +49,7 @@ Build & Tools
 - 프로젝트 소개 및 사용법 안내
 
 ### 파일 업로드 페이지(https://bio-hub-test-production.up.railway.app/upload)
-- 기준 파일과 비교 파일들 업로드
+- 기준 파일과 비교 파일들 업로드✅(sample_fasta_files 활용)
 - 실시간 파일 검증 및 상태 표시
 
 ### 분석 결과 페이지(https://bio-hub-test-production.up.railway.app/comparison-analysis)
