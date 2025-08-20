@@ -14,7 +14,6 @@
 📊 서열 분석
 - **기본 통계**: 서열 개수, 길이, GC 함량
 - **서열 비교**: 기준 서열과 비교 서열들 간의 유사도 분석
-- **통계 계산**: N50, N90, 염기 조성 분포
 
  📈 데이터 시각화
 - **Chart.js**를 활용한 인터랙티브 차트
@@ -25,38 +24,37 @@
 
 Frontend
 - **HTML5/CSS3/JavaScript (ES6+)**
-- **Bootstrap 5** - 반응형 UI
-- **Chart.js** - 데이터 시각화
-- **Fetch API** - 비동기 통신
+- **Bootstrap 5** 
+- **Chart.js** 
+- **Fetch API** 
 
 Backend
 - **Spring Boot 3.4.2**
-- **Spring Web** - REST API
-- **MyBatis** - 데이터베이스 매핑
-- **CompletableFuture** - 비동기 처리
-- **Lombok** - 코드 간소화
+- **Spring Web** 
+- **MyBatis** 
+- **Lombok** 
 
 Database
 - **MySQL 8.0**
-- **HikariCP** - 커넥션 풀
+- **HikariCP** 
 
 Build & Tools
-- **Gradle** - 빌드 도구
+- **Gradle** 
 - **Java 17**
 
 
 ## 📸 주요 화면
 
-### 메인 페이지
+### 메인 페이지(https://bio-hub-test-production.up.railway.app/)
 - 프로젝트 소개 및 사용법 안내
 
-### 파일 업로드 페이지
+### 파일 업로드 페이지(https://bio-hub-test-production.up.railway.app/upload)
 - 기준 파일과 비교 파일들 업로드
 - 실시간 파일 검증 및 상태 표시
 
-### 분석 결과 페이지
+### 분석 결과 페이지(https://bio-hub-test-production.up.railway.app/comparison-analysis)
 - 서열 통계 및 비교 결과
-- 인터랙티브 차트와 상세 데이터
+- 차트와 상세 데이터
 
 ## 🔄 주요 플로우
 
@@ -67,23 +65,23 @@ Build & Tools
 
 ## 🎯 핵심 기술 포인트
 
-### 비동기 처리
-- `CompletableFuture`를 활용한 논블로킹 파일 분석
-- REST API 기반의 비동기 통신
 
 ### 파일 처리
 - `MultipartFile`을 통한 안전한 파일 업로드
 - 스트리밍 방식의 대용량 FASTA 파일 파싱
-
+- 파일 검증
+### DNA 서열 분석
+ - 기본 통계: 서열 수, 길이, GC 함량
+ - 염기 조성 분석 (A, T, C, G, N 개수)
+ - 기준파일과 비교파일의 시퀸스 별 염기조성 길이, 서열 차이 비교
 ### 데이터베이스 설계
-- 정규화된 테이블 구조
 - MyBatis 동적 쿼리 활용
-
+- 테스트버전으로 커넥션 풀 5개로 리소스 절약
 ### 사용자 경험
 - 드래그앤드롭 인터페이스
-- 실시간 상태 피드백
+- 상태 피드백
 - 반응형 웹 디자인
+- 통계처리 유사도순 정렬
 
 
----
 *개발자: 안상률 | 개발 기간: 2025.08.15-2025.08.20
